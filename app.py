@@ -1,5 +1,5 @@
 from dash import dcc, html, Dash, callback
-from methods import predict
+from methods import predict, process
 from dash.dependencies import Input, Output, State
 import pandas as pd
 
@@ -67,13 +67,11 @@ def change_labels(value):
 def make_prediction(click, drop, p1, p2, p3, p4, t, ah, rh, hour, date):
     if None in [p1, p2, p3, p4, t, ah, rh, date]:
         return "Error"
-    df = pd.DataFrame({
-        'p1': [p1], 'p2': [p2], 'p3': [p3], 'p4': [p4], 't': [t], 'rh': [rh], 'ah': [ah], 'datetime': [str(date) + " " + str(hour)]
-    })
-    df['datetime'] = pd.to_datetime(df['datetime'], format="%Y-%m-%d %H")
-    df['datetime'] = (
-        df['datetime'] - pd.Timestamp("1970-01-01 00:00:00")) // pd.Timedelta('1h')
-
+    # df = pd.DataFrame({
+    #    'p1': [p1], 'p2': [p2], 'p3': [p3], 'p4': [p4], 't': [t], 'rh': [rh], 'ah': [ah], 'datetime': [str(date) + " " + str(hour)]
+    # })
+    df = process.process_input(
+        [p1, p2, p3, p4, t, rh, ah, str(date) + " " + str(hour)])
     prediction = predict.predict(df, predict.models.index(drop))
     return str(prediction)
 
